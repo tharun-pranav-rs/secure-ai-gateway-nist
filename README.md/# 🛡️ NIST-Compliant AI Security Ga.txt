@@ -1,59 +1,60 @@
-# 🛡️ NIST-Compliant AI Security Gateway
+# 🛡️ Secure AI Gateway (DevSecOps Implementation)
 
-**A DevSecOps implementation of the NIST AI Risk Management Framework (RMF) using Cloudflare AI Gateway.**
+**A NIST-compliant AI proxy implementing the CIA Triad (Confidentiality, Integrity, Availability) for LLM traffic.**
 
 ## 📌 Project Overview
-Direct access to Large Language Models (LLMs) poses significant security risks, including data leakage, unmanaged costs, and Denial of Service (DoS) attacks.
+Direct API access to Large Language Models (LLMs) creates risks of data leakage, unmanaged costs, and Denial of Service (DoS) attacks. This project bridges that gap by establishing a **Security Gateway** using Cloudflare, ensuring all AI traffic is authenticated, monitored, and sanitized before reaching the model.
 
-This project implements a **Secure AI Proxy** that governs all traffic to Llama-3, enforcing the **CIA Triad** (Confidentiality, Integrity, Availability) before requests ever reach the model.
+**Architecture:** `User` ➡️ `Cloudflare AI Gateway (The Shield)` ➡️ `Meta Llama-3 (The Model)`
 
-## 🚀 Architecture
-**User/App** ➡️ **Cloudflare Gateway (The Shield)** ➡️ **Workers AI (Llama-3)**
+## 🔐 Security Controls (The CIA Triad)
+I engineered this pipeline to satisfy core information security principles:
 
-### Security Controls Implemented
-| Principle | Implementation | Result |
-| :--- | :--- | :--- |
-| **Confidentiality** | Payload Redaction | PII and secrets are never stored in persistent logs. |
-| **Integrity** | API Authentication | Access restricted to authorized API tokens only. |
-| **Availability** | Rate Limiting | Spammers are blocked (HTTP 429) after 3 requests/min. |
-| **Observability** | NIST "Measure" | Full visibility into token usage, latency, and errors. |
+| Principle | Risk | Solution Implemented | Status |
+| :--- | :--- | :--- | :--- |
+| **Confidentiality** | PII/Secret Leakage | **Payload Redaction:** Configured the gateway to process requests but *never* store prompt text (logs show `[Redacted]`). | ✅ Active |
+| **Integrity** | Unauthorized Access | **Strict Auth:** Replaced direct model access with Gateway-enforced API Token authentication. | ✅ Active |
+| **Availability** | DoS / Cost Spikes | **Rate Limiting:** Enforced a policy of **3 requests/min** to automatically block abusive traffic spikes. | ✅ Active |
+| **Observability** | Shadow AI | **NIST "Measure":** Centralized logging of token usage, latency, and error rates without compromising privacy. | ✅ Active |
 
 ## 🛠️ Tech Stack
-* **Infrastructure:** Cloudflare AI Gateway, Workers AI
-* **Model:** Meta Llama-3-8b-Instruct
+* **Infrastructure:** Cloudflare AI Gateway
+* **Model:** Meta Llama-3-8b-Instruct (via Workers AI)
 * **Language:** Python 3.10+
-* **Framework:** NIST AI RMF (Manage & Measure Functions)
+* **Testing:** Custom Python scripts for connectivity, DoS simulation, and privacy validation.
 
-## 📂 Repository Structure
-* `src/`: Python automation scripts for testing the security pipeline.
-* `docs/`: Full implementation playbook and audit logs.
-* `screenshots/`: Evidence of Rate Limiting and Log Redaction.
+## 📸 Proof of Concept
+### 1. Availability Defense (DoS Attack)
+*Simulation of a high-frequency attack. The Gateway detected the spike and enforced the 3 req/min limit, returning `HTTP 429`.*
+![Rate Limit Blocked](screenshots/rate_limit_blocked.png)
+
+### 2. Confidentiality (Log Redaction)
+*Evidence of "Zero Retention" policy. The system processes the request for metrics (cost/tokens) but disables payload logging to protect user secrets.*
+![Logs Redacted](screenshots/logs_redacted.png)
+
+### 3. Observability Dashboard
+*Full visibility into API traffic, errors, and costs.*
+![Gateway Dashboard](screenshots/gateway_dashboard.png)
 
 ## ⚡ How to Run
-1. Clone the repository.
-2. Install dependencies: `pip install requests`
-3. Set your Cloudflare credentials in the scripts.
-4. Run the security tests:
+1. **Clone the repository:**
    ```bash
-   python src/2_availability_attack.py  # Simulates a DoS attack
-   python src/3_confidentiality_test.py # Tests privacy redaction
+   git clone [https://github.com/YOUR_USERNAME/secure-ai-gateway-nist.git](https://github.com/YOUR_USERNAME/secure-ai-gateway-nist.git)
+   cd secure-ai-gateway-nist
 
-📸 Proof of Concept
-(Upload your screenshots to the /screenshots folder and link them here)
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
 
+3. **Configure Secrets:**
+   Open the scripts in src/ and replace GLOBAL_KEY and ACCOUNT_ID with your Cloudflare credentials.
 
----
+4. **Run the Security Tests:**
+   Test Connectivity: python src/1_connectivity_test.py
+   Simulate DoS Attack: python src/2_availability_attack.py
+   Verify Privacy: python src/3_confidentiality_test.py
 
-### **Step 3: Add Your Screenshots**
-You have done the work; now show the proof.
-1.  **Take a screenshot** of your terminal showing the `🛡️ BLOCKED! (429 Too Many Requests)` message.
-2.  **Take a screenshot** of your Cloudflare Logs showing `[Redacted]` or the empty message body.
-3.  Put them in the `screenshots/` folder.
-
----
-
-### **Step 4: Creating the `requirements.txt`**
-This is standard for Python projects. Create a file named `requirements.txt` and add just one line:
-
-```text
-requests==2.31.0
+🔮 Future Roadmap:
+   Implement Custom Firewall Rules to block prompt injection attacks (e.g., "Ignore previous instructions").
+   Set up Email Alerts for security anomalies.
+   Integrate with GitHub Actions for automated security testing.
