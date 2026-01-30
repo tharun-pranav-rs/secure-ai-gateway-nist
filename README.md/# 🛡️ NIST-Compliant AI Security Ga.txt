@@ -1,0 +1,59 @@
+# 🛡️ NIST-Compliant AI Security Gateway
+
+**A DevSecOps implementation of the NIST AI Risk Management Framework (RMF) using Cloudflare AI Gateway.**
+
+## 📌 Project Overview
+Direct access to Large Language Models (LLMs) poses significant security risks, including data leakage, unmanaged costs, and Denial of Service (DoS) attacks.
+
+This project implements a **Secure AI Proxy** that governs all traffic to Llama-3, enforcing the **CIA Triad** (Confidentiality, Integrity, Availability) before requests ever reach the model.
+
+## 🚀 Architecture
+**User/App** ➡️ **Cloudflare Gateway (The Shield)** ➡️ **Workers AI (Llama-3)**
+
+### Security Controls Implemented
+| Principle | Implementation | Result |
+| :--- | :--- | :--- |
+| **Confidentiality** | Payload Redaction | PII and secrets are never stored in persistent logs. |
+| **Integrity** | API Authentication | Access restricted to authorized API tokens only. |
+| **Availability** | Rate Limiting | Spammers are blocked (HTTP 429) after 3 requests/min. |
+| **Observability** | NIST "Measure" | Full visibility into token usage, latency, and errors. |
+
+## 🛠️ Tech Stack
+* **Infrastructure:** Cloudflare AI Gateway, Workers AI
+* **Model:** Meta Llama-3-8b-Instruct
+* **Language:** Python 3.10+
+* **Framework:** NIST AI RMF (Manage & Measure Functions)
+
+## 📂 Repository Structure
+* `src/`: Python automation scripts for testing the security pipeline.
+* `docs/`: Full implementation playbook and audit logs.
+* `screenshots/`: Evidence of Rate Limiting and Log Redaction.
+
+## ⚡ How to Run
+1. Clone the repository.
+2. Install dependencies: `pip install requests`
+3. Set your Cloudflare credentials in the scripts.
+4. Run the security tests:
+   ```bash
+   python src/2_availability_attack.py  # Simulates a DoS attack
+   python src/3_confidentiality_test.py # Tests privacy redaction
+
+📸 Proof of Concept
+(Upload your screenshots to the /screenshots folder and link them here)
+
+
+---
+
+### **Step 3: Add Your Screenshots**
+You have done the work; now show the proof.
+1.  **Take a screenshot** of your terminal showing the `🛡️ BLOCKED! (429 Too Many Requests)` message.
+2.  **Take a screenshot** of your Cloudflare Logs showing `[Redacted]` or the empty message body.
+3.  Put them in the `screenshots/` folder.
+
+---
+
+### **Step 4: Creating the `requirements.txt`**
+This is standard for Python projects. Create a file named `requirements.txt` and add just one line:
+
+```text
+requests==2.31.0
